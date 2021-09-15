@@ -6,6 +6,7 @@ from set1.c4 import *
 from set1.c5 import *
 from set1.c6 import *
 from set1.c7 import *
+from set1.c8 import *
 
 # Set C2
 # print(xor("686974207468652062756c6c277320657965", "1c0111001f010100061a024b53535009181c"))
@@ -31,5 +32,8 @@ from set1.c7 import *
 
 
 # Set C7
-b = base64.b64decode(open("set1/7.txt").read())
-print(decrypt_aes_128(b, b"YELLOW SUBMARINE").decode())
+# b = base64.b64decode(open("set1/7.txt").read())
+# print(decrypt_aes_128(b, b"YELLOW SUBMARINE").decode())
+
+# Set C8
+print(find_ecb_128(open("set1/8.txt").read()))
