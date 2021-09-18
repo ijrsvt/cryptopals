@@ -1,7 +1,7 @@
+import binascii
 from collections import Counter
 from typing import Tuple
 
-from .c1 import hex2bytes
 
 
 def matching_ecb_128_blocks(msg: bytes) -> Tuple[bool, int]:
@@ -16,8 +16,13 @@ def find_ecb_128(hex_lines: str) -> bytes:
     for line in hex_lines.split("\n"):
         if not line:
             continue
-        good, counts = matching_ecb_128_blocks(hex2bytes(line))
+        good, counts = matching_ecb_128_blocks(binascii.unhexlify(line))
         if good and counts > max_overlap:
             max_overlap = counts
-            likely_line = hex2bytes(line)
+            likely_line = binascii.unhexlify(line)
     return likely_line
+
+if __name__ == "__main__":
+    line = find_ecb_128(open("8.txt").read())
+    print(matching_ecb_128_blocks(line))
+    assert matching_ecb_128_blocks(line)[1] > 1

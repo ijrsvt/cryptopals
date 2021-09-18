@@ -12,6 +12,6 @@ def try_all_inputs(file_name: str) -> List[bytes]:
     return results
 
 if __name__ == "__main__":
-    outputs = try_all_inputs("set1/c4_input.txt")
+    outputs = try_all_inputs("c4_input.txt")
     print(f"Decoded: {outputs[0][0].decode()}")
     assert outputs[0][1] == 53
