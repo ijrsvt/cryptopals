@@ -2,7 +2,7 @@ import binascii
 from collections import defaultdict
 from typing import List
 
-from common import try_all_xor, repeated_xor_encrypt
+from set1.common import try_all_xor, repeated_xor_encrypt
 
 def hamming_byte_distance(b1: int, b2: int) -> int:
     differing = b1 ^ b2
