@@ -33,11 +33,11 @@ def ensure_ecb(o: Oracle):
     assert output[64:80] == output[80:96]
 
 
-def decode_one_byte_at_atime(o: Oracle):
+def decode_sixteen_bytes_at_atime(o: Oracle):
     block_size = determine_block_size(o)
     ensure_ecb(o)
     reverse_discovered = b""
-    for i in range(1, block_size):
+    for i in range(1, block_size+1):
         one_short = b"A" * (block_size -i)
         encrypted_one_short = o.run(one_short)
         options = {
@@ -45,7 +45,6 @@ def decode_one_byte_at_atime(o: Oracle):
             for j in range(256)
         }
         reverse_discovered += bytes([options[encrypted_one_short[:16]]])
-        print(reverse_discovered)
 
     return reverse_discovered
 
@@ -53,5 +52,5 @@ def decode_one_byte_at_atime(o: Oracle):
 
 if __name__ == "__main__":
     o = Oracle()
-    print(decode_one_byte_at_atime(o))
+    print(decode_sixteen_bytes_at_atime(o))
 
