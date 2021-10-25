@@ -1,7 +1,7 @@
 import binascii
 from typing import List, Optional, Tuple, Union
 
-from c2 import xor
+from set1.c2 import xor
 
 
 HEURISTIC_VALID = 0.7

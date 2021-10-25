@@ -2,7 +2,7 @@ import binascii
 from itertools import chain
 from typing import List
 
-from common import try_all_xor, score
+from set1.common import try_all_xor, score
 
 
 def try_all_inputs(file_name: str) -> List[bytes]:
