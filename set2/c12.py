@@ -1,4 +1,5 @@
 import binascii
+import math
 import secrets
 
 
@@ -50,7 +51,32 @@ def decode_sixteen_bytes_at_atime(o: Oracle):
 
 
 
+def decode_unknown_string(o: Oracle):
+    block_size = determine_block_size(o)
+    ensure_ecb(o)
+    num_blocks = math.ceil(len(o.run(b""))/16)
+    reverse_discovered = b"" 
+    for b in range(num_blocks):
+        for i in range(1, block_size+1):
+            one_short = b"A" * (block_size -i)
+            encrypted_one_short = o.run(one_short)[:16*(b+1)]
+            options = {
+                o.run(one_short + reverse_discovered + bytes([j]))[:16*(b+1)]: j
+                for j in range(256)
+            }
+            try:
+                last_byte = bytes([options[encrypted_one_short]])
+                if not last_byte.isascii():
+                    return reverse_discovered
+                reverse_discovered += last_byte
+            except Exception as e:
+                print(f"Caught Exception: {e}")
+                return reverse_discovered
+    return reverse_discovered
+
+
 if __name__ == "__main__":
     o = Oracle()
-    print(decode_sixteen_bytes_at_atime(o))
+    decoded = decode_unknown_string(o)
+    print(decoded)
 
