@@ -19,7 +19,7 @@ class Oracle:
 
 
 
-def determine_ecb_block_size(enc_fn: Callable[[bytes], bytes]):
+def determine_ecb_block_size(enc_fn: Callable[[bytes], bytes]) -> int:
     candidate = 2
     NUM_CHARS = 100_000
     encrypted = enc_fn(b"A" * NUM_CHARS)
@@ -34,6 +34,45 @@ def determine_ecb_block_size(enc_fn: Callable[[bytes], bytes]):
             # We have found a key if >90% of blocks match & there is only one match block!
             return candidate
         candidate += 1
+
+
+def find_first_target_block(encrypted: bytes, block_size: int):
+    prev = b""
+    in_repeated = False
+    for i in range(0, len(encrypted), block_size):
+        chunk = encrypted[i:i+block_size]
+        if prev == chunk:
+            in_repeated = True
+        elif in_repeated:
+            return chunk
+        prev = chunk
+
+
+def decode_one_byte(o: Oracle):
+    block_size = determine_ecb_block_size(o.run)
+    one_short = b"A" * ((block_size * 10) - 1)    
+    encrypted_one_short = {find_first_target_block(o.run(one_short), block_size) for _ in range(1000)}
+    while True:
+        for j in range(256):
+            attempt = find_first_target_block(o.run(one_short + bytes([j])), block_size)
+            if attempt in encrypted_one_short:
+                return j
+
+def decode_sixteen_bytes(o: Oracle):
+    block_size = determine_ecb_block_size(o.run)
+    one_short = b"A" * ((block_size * 10) - 1)    
+    reverse_discovered = b""
+    for i in range(1, block_size+1):
+        encrypted_one_short = {find_first_target_block(o.run(one_short), block_size) for _ in range(1000)}
+        flag = True
+        while flag:
+            for j in range(256):
+                attempt = find_first_target_block(o.run(one_short + reverse_discovered + bytes([j])), block_size)
+                if attempt in encrypted_one_short:
+                    # print(bytes([j]))
+                    reverse_discovered += bytes([j])
+                    flag = False
+    return reverse_discovered
 
 
 def decode_sixteen_bytes_at_atime(o: Oracle):
@@ -56,5 +95,5 @@ def decode_sixteen_bytes_at_atime(o: Oracle):
 
 if __name__ == "__main__":
     o = Oracle()
-    print(determine_ecb_block_size(o.run))
-    
+    # print(determine_ecb_block_size(o.run))
+    z = decode_one_byte(o)
