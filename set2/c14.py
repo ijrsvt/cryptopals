@@ -36,7 +36,7 @@ def determine_ecb_block_size(enc_fn: Callable[[bytes], bytes]) -> int:
         candidate += 1
 
 
-def find_first_target_block(encrypted: bytes, block_size: int):
+def find_n_target_block(encrypted: bytes, block_size: int, n: int = 1):
     prev = b""
     in_repeated = False
     for i in range(0, len(encrypted), block_size):
@@ -44,17 +44,17 @@ def find_first_target_block(encrypted: bytes, block_size: int):
         if prev == chunk:
             in_repeated = True
         elif in_repeated:
-            return chunk
+            return encrypted[i: i + (n)*block_size]
         prev = chunk
 
 
 def decode_one_byte(o: Oracle):
     block_size = determine_ecb_block_size(o.run)
     one_short = b"A" * ((block_size * 10) - 1)    
-    encrypted_one_short = {find_first_target_block(o.run(one_short), block_size) for _ in range(1000)}
+    encrypted_one_short = {find_n_target_block(o.run(one_short), block_size) for _ in range(1000)}
     while True:
         for j in range(256):
-            attempt = find_first_target_block(o.run(one_short + bytes([j])), block_size)
+            attempt = find_n_target_block(o.run(one_short + bytes([j])), block_size)
             if attempt in encrypted_one_short:
                 return j
 
@@ -63,37 +63,44 @@ def decode_sixteen_bytes(o: Oracle):
     one_short = b"A" * ((block_size * 10) - 1)    
     reverse_discovered = b""
     for i in range(1, block_size+1):
-        encrypted_one_short = {find_first_target_block(o.run(one_short), block_size) for _ in range(1000)}
+        encrypted_one_short = {find_n_target_block(o.run(one_short), block_size) for _ in range(1000)}
         flag = True
         while flag:
             for j in range(256):
-                attempt = find_first_target_block(o.run(one_short + reverse_discovered + bytes([j])), block_size)
+                attempt = find_n_target_block(o.run(one_short + reverse_discovered + bytes([j])), block_size)
                 if attempt in encrypted_one_short:
-                    # print(bytes([j]))
                     reverse_discovered += bytes([j])
                     flag = False
     return reverse_discovered
 
-
-def decode_sixteen_bytes_at_atime(o: Oracle):
+def decode_all(o: Oracle):
     block_size = determine_ecb_block_size(o.run)
+    one_short = b"\x00" * ((block_size * 10) - 1)    
     reverse_discovered = b""
-    for i in range(1, block_size+1):
-        one_short = b"A" * (block_size -i)
-        encrypted_one_short = o.run(one_short * 4)
-        
-        options = {
-            o.run(
-                one_short + reverse_discovered + bytes([j])
-                )[:16]: j
-            for j in range(256)
-        }
-        reverse_discovered += bytes([options[encrypted_one_short[:16]]])
+    b = 1
+    while True:
+        for i in range(1, block_size+1):
+            encrypted_one_short = {find_n_target_block(o.run(one_short), block_size, b) for _ in range(1000)}
+            flag = True
+            iters = 0
+            while flag:
+                for j in range(1,256):
+                    attempt = find_n_target_block(o.run(one_short + reverse_discovered + bytes([j])), block_size, b)
+                    if attempt in encrypted_one_short:
+                        reverse_discovered += bytes([j])
+                        flag = False
+                        break
+                        # print(b"Found " + (bytes([j])))
+                if iters > 1000:
+                    return reverse_discovered
+                iters += 1
+        b += 1
+        print("FOUNDER", reverse_discovered, len(reverse_discovered))
 
-    return reverse_discovered
 
 
 if __name__ == "__main__":
     o = Oracle()
     # print(determine_ecb_block_size(o.run))
     z = decode_one_byte(o)
+    y = decode_all(o)
