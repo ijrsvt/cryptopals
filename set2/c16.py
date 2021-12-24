@@ -18,12 +18,10 @@ def generate_string(userdata: str, aes_key: bytes, iv: bytes) -> str:
 
 def decrypt_blob(blob: bytes, aes_key: bytes, iv: bytes) -> bool:
     decrypted = decrypt_aes_128_cbc(blob, aes_key, iv)
-    # print(decrypted)
     dct = {
         tpl.split(b"=")[0] : tpl.split(b"=")[1]
         for tpl in decrypted.split(b";")
     }
-    # print(dct)
     return dct.get(b"admin") == b"true"
     
 
@@ -49,5 +47,6 @@ if __name__ == "__main__":
         lambda x: generate_string(x, key, iv),
         lambda y: decrypt_blob(y, key, iv)
     )
+    print("We Got Admin!")
 
     

@@ -17,5 +17,8 @@ if __name__ == "__main__":
     assert validate_padding(pad_bytes(b"abcd", 4).decode()) == "abcd"
     with pytest.raises(Exception):
         validate_padding("1234\01\02")
+    with pytest.raises(Exception):
+        validate_padding("1234\05\05\05")
 
     assert validate_padding("1234\01") == "1234"
+    print("SUCCESS!")
