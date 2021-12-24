@@ -1,6 +1,7 @@
 import binascii
 import math
 import secrets
+from typing import Callable
 
 
 from set2.c11 import encrypt_aes_128_ecb
@@ -19,12 +20,12 @@ class Oracle:
         return encrypt_aes_128_ecb(inp + binascii.a2b_base64(UNKOWN_STRING), self.key)
 
 
-def determine_block_size(o: Oracle):
+def determine_block_size(enc_fn: Callable[[bytes], bytes]):
     i = 0
-    original_size = len(o.run(b"A" * i))
+    original_size = len(enc_fn(b"A" * i))
     while True:
         i += 1 
-        new_size = len(o.run(b"A" * i))
+        new_size = len(enc_fn(b"A" * i))
         if original_size != new_size:
             return new_size - original_size
 
@@ -35,7 +36,7 @@ def ensure_ecb(o: Oracle):
 
 
 def decode_sixteen_bytes_at_atime(o: Oracle):
-    block_size = determine_block_size(o)
+    block_size = determine_block_size(o.run)
     ensure_ecb(o)
     reverse_discovered = b""
     for i in range(1, block_size+1):
@@ -52,7 +53,7 @@ def decode_sixteen_bytes_at_atime(o: Oracle):
 
 
 def decode_unknown_string(o: Oracle):
-    block_size = determine_block_size(o)
+    block_size = determine_block_size(o.run)
     ensure_ecb(o)
     num_blocks = math.ceil(len(o.run(b""))/16)
     reverse_discovered = b"" 

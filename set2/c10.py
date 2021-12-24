@@ -18,6 +18,12 @@ def decrypt_aes_128_cbc(encrypted: bytes, key: bytes, iv: bytes = b"\x00"*16) ->
     block_amount = output[-1]
     return output[:-block_amount]
 
+def decrypt_aes_128_ecb(encrypted: bytes, key:bytes) -> bytes:
+    cipher = AES.new(key, AES.MODE_ECB)
+    decrypted = cipher.decrypt(encrypted)
+    block_amount = decrypted[-1]
+    return decrypted[:-block_amount]
+
 
 def encrypt_aes_128_cbc(msg: bytes, key: bytes, iv: bytes = b"\x00" * 16) -> bytes:
     assert len(key) == 16, "AES 128 requires a 16 Byte Key!"
