@@ -3,13 +3,15 @@ import pytest
 from set2.c9 import pad_bytes
 
 
-def validate_padding(inp: str) -> str:
-    inp = inp.encode()
+def validate_padding_bytes(inp: bytes) -> bytes:
     num_pads = inp[-1]
     padded_bytes = inp[-1*num_pads:]
     if not (all(i == num_pads for i in padded_bytes) and len(padded_bytes) == num_pads):
         raise Exception("Invalid Padding!!")
-    return inp[:-1*num_pads].decode()
+    return inp[:-1*num_pads]
+
+def validate_padding(inp: str) -> str:
+    return validate_padding_bytes(inp.encode()).decode()
 
 
 if __name__ == "__main__":

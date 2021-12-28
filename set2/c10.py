@@ -5,7 +5,7 @@ from set1.c2 import xor
 from set2.c9 import pad_bytes
 
 
-def decrypt_aes_128_cbc(encrypted: bytes, key: bytes, iv: bytes = b"\x00"*16) -> bytes:
+def _decrypt_aes_128_cbc_raw(encrypted: bytes, key: bytes, iv: bytes) -> bytes:
     assert len(key) == 16, "AES 128 requires a 16 Byte Key!"
     cipher = AES.new(key, AES.MODE_ECB)
     decrypted = b""
@@ -15,6 +15,10 @@ def decrypt_aes_128_cbc(encrypted: bytes, key: bytes, iv: bytes = b"\x00"*16) ->
         output += xor(cipher.decrypt(encrypted[:16]), last_block)
         last_block = encrypted[:16]
         encrypted = encrypted[16:]
+    return output
+
+def decrypt_aes_128_cbc(encrypted: bytes, key: bytes, iv: bytes = b"\x00"*16) -> bytes:
+    output = _decrypt_aes_128_cbc_raw(encrypted, key, iv)
     block_amount = output[-1]
     return output[:-block_amount]
 
