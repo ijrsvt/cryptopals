@@ -34,3 +34,8 @@ if __name__ == "__main__":
     output = decrypt(b"YELLOW SUBMARINE", a2b_base64("L77na/nrFsKvynd6HzOoG7GHTLXsTVu9qvY/2syLXzhPweyyMTJULu/6/kXX0KSvoOLSFQ=="))
     print(output)
 
+    pt = b"123456789"
+    ct = encrypt("YELLOW SUBMARINE", pt)
+    assert len(ct) == len(pt)
+    assert decrypt("YELLOW SUBMARINE", ct).encode() == pt
+
