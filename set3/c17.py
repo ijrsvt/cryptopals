@@ -42,7 +42,6 @@ def brute_force_second_block(enc: bytes, decrypt: Callable[[bytes], bool] ) -> b
     assert len(enc) == 32
     d_k_1 = [None]  * 16
     p_k_1 = [None]  * 16
-    tried_attempts = [set()] * 16
     for padding_amount in range(1, 17, 1):
         indx = 16 - padding_amount
         suffix = bytes([
@@ -76,11 +75,12 @@ def brute_force_all(o: Oracle):
         sol = b"".join(output)
         try:
             digit = int(sol[:6])
+            assert sol.isascii()
             if digit not in found:
                 found.add(digit)
                 strings.append(sol)
         except Exception as e:
-            print("OOF")
+            print("OOF\n", sol)
     found = list(found)
     strings.sort(key=lambda x: int(x[:6]))
     print("Found All!!\n\n")
