@@ -67,9 +67,18 @@ class MersenneTwister:
 
 m = MersenneTwister()
 m.seed_mt(5489)
-print(bin(m.extract_numbers()))
 
-from random import Random
+# from random import Random
+# r = Random(5489)
+# print(bin(r.getrandbits(32)))
+# It appears that this is not actually the raw MT
+# outputs :(
 
-r = Random(5489)
-print(bin(r.getrandbits(32)))
+# REF_OUTPUT came from https://asecuritysite.com/primes/twister
+REF_OUTPUT = [3499211612, 581869302, 3890346734, 3586334585, 545404204, 4161255391, 3922919429, 949333985, 2715962298, 1323567403, 418932835, 2350294565, 1196140740, 809094426, 2348838239, 4264392720, 4112460519, 4279768804, 4144164697, 4156218106]
+
+for correct_output in REF_OUTPUT:
+    real_output = m.extract_numbers()
+    assert real_output == correct_output
+print("Success!")
+
