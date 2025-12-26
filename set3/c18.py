@@ -8,7 +8,7 @@ from set1.c2 import xor
 
 
 def keystream(key: bytes, nonce: Optional[bytes] = None) -> bytes:
-    cipher = AES.new(key)
+    cipher = AES.new(key, mode=AES.MODE_ECB)
     i = 0
     if nonce is None:
         nonce = i.to_bytes(8, byteorder="little")
@@ -35,7 +35,7 @@ if __name__ == "__main__":
     print(output)
 
     pt = b"123456789"
-    ct = encrypt("YELLOW SUBMARINE", pt)
+    ct = encrypt(b"YELLOW SUBMARINE", pt)
     assert len(ct) == len(pt)
-    assert decrypt("YELLOW SUBMARINE", ct).encode() == pt
+    assert decrypt(b"YELLOW SUBMARINE", ct).encode() == pt
 
